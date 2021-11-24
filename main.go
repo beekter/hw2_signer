@@ -5,34 +5,33 @@ import (
 )
 
 func main() {
-	//inputData := []int{0, 1}
-	inputData := []string{"one", "two"}
-	var res string
-
-	//var in, out chan interface{}
+	inputData := []int{0, 1, 3}
 
 	inputJob := job(func(in, out chan interface{}) {
-		fmt.Printf("in chan: %T\n", in)
-		fmt.Printf("out chan: %T\n", out)
-		for _, datum := range inputData {
-			fmt.Printf("writing to out: %v\n", datum)
-			out <- datum
+		for _, fibNum := range inputData {
+			out <- fibNum
 		}
+
+		close(out)
 	})
 
 	outputJob := job(func(in, out chan interface{}) {
-		for dataRaw := range in {
-			data := fmt.Sprintf("%v", dataRaw)
-			res += " " + data
+		dataRaw := <-in
+		data, ok := dataRaw.(string)
+		if !ok {
+			fmt.Println("cant convert result data to string")
+			return
 		}
+		fmt.Println(data)
 	})
 
 	ExecutePipeline(
 		inputJob,
+		SingleHash,
+		MultiHash,
+		CombineResults,
 		outputJob,
-	//job(MultiHash),
-	//job(CombineResults),
 	)
 
-	fmt.Printf("Result: %v\n", res)
+	fmt.Scanln()
 }
