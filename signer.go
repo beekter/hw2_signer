@@ -63,7 +63,7 @@ func PrettyPrint(HashPrint HashPrint) {
 	fmt.Println(string(pp), "asd")
 }
 
-func kPrintResult(HashPrint HashPrint) {
+func PrintResult(HashPrint HashPrint) {
 	for i := range HashPrint.Data {
 		data := HashPrint.Data[i]
 		fmt.Printf("%v SingleHash Data %v\n", data, data)
