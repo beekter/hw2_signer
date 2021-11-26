@@ -5,21 +5,19 @@ import (
 )
 
 func main() {
-	inputData := []int{0, 1, 3}
+	inputData := []int{0, 1}
 
 	inputJob := job(func(in, out chan interface{}) {
 		for _, fibNum := range inputData {
 			out <- fibNum
 		}
-
-		close(out)
 	})
 
 	outputJob := job(func(in, out chan interface{}) {
 		dataRaw := <-in
 		data, ok := dataRaw.(string)
 		if !ok {
-			fmt.Println("cant convert result data to string")
+			fmt.Println("cant convert Result Data to string")
 			return
 		}
 		fmt.Println(data)
@@ -32,6 +30,4 @@ func main() {
 		CombineResults,
 		outputJob,
 	)
-
-	fmt.Scanln()
 }
