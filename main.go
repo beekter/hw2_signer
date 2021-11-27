@@ -5,7 +5,7 @@ import (
 )
 
 func main() {
-	inputData := []int{0, 1}
+	inputData := []int{0, 1, 1, 2, 3, 5, 8}
 
 	inputJob := job(func(in, out chan interface{}) {
 		for _, fibNum := range inputData {
