@@ -1,8 +1,8 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -51,16 +51,7 @@ func ExecutePipeline(jobs ...job) {
 	}
 
 	pipelineWg.Wait()
-	PrettyPrint(resultPrint)
-	//PrintResult(resultPrint)
-}
-
-func PrettyPrint(HashPrint HashPrint) {
-	pp, err := json.MarshalIndent(HashPrint, "", "  ")
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-	fmt.Println(string(pp), "asd")
+	PrintResult(resultPrint)
 }
 
 func PrintResult(HashPrint HashPrint) {
@@ -109,11 +100,14 @@ func runJob(pipelineWg *sync.WaitGroup, job job, in, out chan interface{}) {
 }
 
 func CombineResults(in chan interface{}, out chan interface{}) {
-	var result string
+	var results []string
 	for data := range in {
-		result += "_" + data.(string)
+		results = append(results, data.(string))
 	}
-	resultPrint.Combined = result[1:]
+	sort.Slice(results, func(i, j int) bool {
+		return results[i] < results[j]
+	})
+	resultPrint.Combined = strings.Join(results, "_")
 	out <- resultPrint.Combined
 	close(out)
 }
@@ -122,7 +116,6 @@ func MultiHash(in chan interface{}, out chan interface{}) {
 	mhWg := sync.WaitGroup{}
 	mhMu := &sync.Mutex{}
 	for data := range in {
-		fmt.Println(data)
 		mhWg.Add(1)
 		thResult := ThreadResult{
 			Data:   data.(string),
