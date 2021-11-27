@@ -94,8 +94,9 @@ func runLastJob(pipelineWg *sync.WaitGroup, job job, in chan interface{}) {
 func runJob(pipelineWg *sync.WaitGroup, job job, in, out chan interface{}) {
 	pipelineWg.Add(1)
 	go func() {
-		pipelineWg.Done()
+		defer pipelineWg.Done()
 		job(in, out)
+		close(out)
 	}()
 }
 
@@ -109,7 +110,6 @@ func CombineResults(in chan interface{}, out chan interface{}) {
 	})
 	resultPrint.Combined = strings.Join(results, "_")
 	out <- resultPrint.Combined
-	close(out)
 }
 
 func MultiHash(in chan interface{}, out chan interface{}) {
@@ -146,7 +146,6 @@ func MultiHash(in chan interface{}, out chan interface{}) {
 		}(data)
 	}
 	mhWg.Wait()
-	close(out)
 }
 
 func SingleHash(in chan interface{}, out chan interface{}) {
@@ -204,7 +203,6 @@ func SingleHash(in chan interface{}, out chan interface{}) {
 	}()
 
 	singleHashWg.Wait()
-	close(out)
 }
 
 func handleCrc(wg *sync.WaitGroup, in, out chan interface{}, i int, resultPrint *Sh) {
